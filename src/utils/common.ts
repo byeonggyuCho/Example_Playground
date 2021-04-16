@@ -829,27 +829,35 @@ export const buildLink = (obj: any) => {
  * @description script 로더
  * @param url
  */
-export async function loadScript(url: string | string[]): Promise<any> {
+ export const loadScript = async (url: string | string[]): Promise<any> => {
   if (Array.isArray(url)) {
-    const promiseList = url.map((item) => loadScript(item));
+    const promiseList = url.map(item => loadScript(item));
     return Promise.all(promiseList);
-  } else {
-    return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.onload = function onload(e) {
-        resolve(e);
-      };
-      script.onerror = function onerror(e) {
-        reject(e);
-      };
-      script.src = url;
-      if (!document || !document.head) {
-        return;
-      }
-      document.head.appendChild(script);
-    });
   }
-}
+  return new Promise((resolve, reject) => {
+    const isLoaded = document.querySelector(`script[src='${url}']`) !== null;
+
+    if (isLoaded) {
+      reject(new Error('already loaded.'));
+      return;
+    }
+
+    const $script = document.createElement('script');
+    $script.src = url;
+    $script.async = true;
+    $script.onload = e => {
+      resolve(e);
+    };
+    $script.onerror = e => {
+      reject(e);
+    };
+    if (!document || !document.head) {
+      return;
+    }
+    document.head.appendChild($script);
+  });
+};
+
 
 /**
  * @description 월말과 윤달의 문제를 해결한다.

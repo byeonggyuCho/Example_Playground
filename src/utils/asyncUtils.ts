@@ -12,6 +12,22 @@ import {
 import DEMO_DATA from '@config/demo/brand';
 import { createServerResponce } from '@utils/common';
 
+
+/**
+ * 비동기 코드 에러 핸들링을 위한 함수, 예상하지 못한 에러는 전역 에러 핸들러에 위임한다.
+ * @param res
+ * @returns
+ */
+ export const isExpectedError = <UnknownError extends Error>(error: UnknownError): boolean => {
+  if (typeof error !== 'object' || error == null) {
+    return false;
+  }
+
+  // TODO: 검증과정 필요, 500번대에러 or 서버 API에서 정의한 커스텀 에러코드의 네이밍 룰
+  return true;
+};
+
+
 export class ServerError extends Error {
   status: number;
   data: any;
